@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 public class AppCtx {
     @Bean
     public Greeter greeter() {
+
         return new Greeter();
     }
 }
