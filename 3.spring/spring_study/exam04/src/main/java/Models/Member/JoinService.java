@@ -1,27 +1,20 @@
 package Models.Member;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
-public class JoinService {
+@RequiredArgsConstructor
+public class JoinService { // 빈의 이름 joinService
 
-    @Autowired
-    // @Qualifier("memberDao")
-    private MemberDao memberDao;
+    // @Autowired
+    private final MemberDao memberDao;
 
-    @Autowired
+    // @Autowired
+    @NonNull
     private JoinValidator validator;
-
-    public JoinService() {
-
-    }
-
-    public JoinService(MemberDao memberDao, JoinValidator validator) {
-        this.memberDao = memberDao;
-        this.validator = validator;
-    }
 
     public void join(Member member) {
         // 데이터 검증 : validator

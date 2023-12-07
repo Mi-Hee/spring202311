@@ -4,23 +4,13 @@ import Commons.Exceptions.BadRequestException;
 import Commons.Validators.RequiredValidator;
 import Commons.Validators.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
 public class JoinValidator implements Validator<Member>, RequiredValidator {
 
     @Autowired
-    // @Qualifier("memberDao")
     private MemberDao memberDao;
-
-    public JoinValidator() {
-
-    }
-
-    public JoinValidator(MemberDao memberDao) {
-        this.memberDao = memberDao;
-    }
 
     public void validate(Member member) {
         /* 필수 항목 검증 (아이디, 비밀번호, 비밀번호 확인, 회원명) */
