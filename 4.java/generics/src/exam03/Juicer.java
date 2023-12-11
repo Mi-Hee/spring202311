@@ -1,13 +1,14 @@
 package exam03;
 
+import exam02.Fruit;
+
 public class Juicer {
-    /*
-    public static void make(FruitBox<Apple> appleBox) {
-
+    public static void make(FruitBox<? super Apple> fruitBox) { // Apple, Fruit, Object
+        System.out.println(fruitBox.getItems());
     }
 
-    public static void make(FruitBox<Pear> pearBox) {
-
+    public static <T extends Fruit> void make2(FruitBox<T> fruitBox) {
+        System.out.println(fruitBox.getItems());
     }
-     */
+
 }
