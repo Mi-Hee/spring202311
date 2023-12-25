@@ -1,6 +1,9 @@
 package mapper;
 
+import controllers.admin.MemberSearch;
 import models.member.Member;
+
+import java.util.List;
 
 public interface MemberMapper {
     int register(Member member);
@@ -8,5 +11,6 @@ public interface MemberMapper {
 
     Member get(String userId);
 
+    List<Member> getList(MemberSearch search);
 
 }

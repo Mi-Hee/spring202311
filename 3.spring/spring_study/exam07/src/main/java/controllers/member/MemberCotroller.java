@@ -1,8 +1,10 @@
 package controllers.member;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import models.member.JoinService;
+import models.member.LoginService;
 import models.member.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +14,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.plaf.PanelUI;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +27,8 @@ public class MemberCotroller {
 
     private final JoinValidator joinValidator;
     private final JoinService joinService;
+    private final LoginValidator loginValidator;
+    private final LoginService loginService;
 
     @ModelAttribute("hobbies")
     public List<String> hobbies() {
@@ -57,6 +62,8 @@ public class MemberCotroller {
             return "member/join";
         }
 
+
+
         // 회원 가입 처리
         joinService.join(form);
 
@@ -71,16 +78,32 @@ public class MemberCotroller {
     }
 
     @GetMapping("/login") // /member/login
-    public String login() {
+    public String login(@ModelAttribute RequestLogin form) {
 
         return "member/login";
     }
 
     @PostMapping("/login") // /member/login
-    public String loginPS(RequestJoin form) {
-        System.out.println(form);
+    public String loginPS(@Valid RequestLogin form, Errors errors) {
 
-        return "member/login";
+        loginValidator.validate(form, errors);
+
+        // System.out.println(form);
+        if (errors.hasErrors()) {
+            return "member/login";
+        }
+
+        // 로그인 처리
+        loginService.login(form);
+
+        return "redirect:/"; // 로그인 성공시 메인페이지로 이동
+    }
+
+    @RequestMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate(); // 세션 비우기
+        
+        return "redirect:/memebr/login"; // 로그인 페이지로 이동
     }
 
     @GetMapping("/list") // /member/list
