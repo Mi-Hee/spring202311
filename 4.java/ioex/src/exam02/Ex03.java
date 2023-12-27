@@ -5,6 +5,7 @@ import java.io.IOException;
 
 public class Ex03 {
     public static void main(String[] args) {
+        /*
         try (FileOutputStream fos = new FileOutputStream("test3.txt")) {
             fos.write('안');
             fos.write('녕');
@@ -16,5 +17,7 @@ public class Ex03 {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+         */
     }
 }
