@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <script>
+            window.addEventListener("DOMContentLoaded", function() {
+                const button = document.getElementById("button");
+                button.addEventListener("mouseenter", function(e) {
+                    console.log(e);
+                    console.log("mouseenter");
+                });
+
+                button.addEventListener("mouseleave", function(e) {
+                    console.log(e);
+                    console.log("mouseleave");
+                });
+            });
+        </script>
+
+        <button type="button" id="button">확인</button>
+    </body>
+</html>

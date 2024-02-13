@@ -1,0 +1,170 @@
+Index: ../../5.스프링부트/exam02/src/main/java/org/choongang/repositories/MemberRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.choongang.repositories;\r\n\r\nimport org.choongang.entities.Member;\r\nimport org.springframework.data.jpa.repository.JpaRepository;\r\n\r\npublic interface MemberRepository extends JpaRepository<Member, Long> {\r\n}\r\n
+===================================================================
+diff --git a/../../5.스프링부트/exam02/src/main/java/org/choongang/repositories/MemberRepository.java b/../../5.스프링부트/exam02/src/main/java/org/choongang/repositories/MemberRepository.java
+--- a/../../5.스프링부트/exam02/src/main/java/org/choongang/repositories/MemberRepository.java	
++++ b/../../5.스프링부트/exam02/src/main/java/org/choongang/repositories/MemberRepository.java	
+@@ -4,4 +4,5 @@
+ import org.springframework.data.jpa.repository.JpaRepository;
+ 
+ public interface MemberRepository extends JpaRepository<Member, Long> {
++    Member findByEmail(String email);
+ }
+Index: ../../5.스프링부트/exam02/src/main/java/org/choongang/repositories/BoardDataRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.choongang.repositories;\r\n\r\nimport org.choongang.entities.BoardData;\r\nimport org.springframework.data.domain.Page;\r\nimport org.springframework.data.domain.Pageable;\r\nimport org.springframework.data.jpa.repository.JpaRepository;\r\nimport org.springframework.data.jpa.repository.Query;\r\nimport org.springframework.data.repository.query.Param;\r\n\r\nimport java.util.List;\r\nimport java.util.Stack;\r\n\r\npublic interface BoardDataRepository extends JpaRepository<BoardData, Long> {\r\n    List<BoardData> findBySubjectContaining(String keyword);\r\n    Page<BoardData> findBySubjectContaining(String keyword, Pageable pageable);\r\n\r\n    List<BoardData> findBySubjectContainingOrderBySeqDesc(String keyword);\r\n\r\n    @Query(\"SELECT b FROM BoardData b WHERE b.subject LIKE '%:key%' ORDER BY b.seq DESC\")\r\n    List<BoardData> getSubject(@Param(\"key\") String keyword);\r\n\r\n}\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n
+===================================================================
+diff --git a/../../5.스프링부트/exam02/src/main/java/org/choongang/repositories/BoardDataRepository.java b/../../5.스프링부트/exam02/src/main/java/org/choongang/repositories/BoardDataRepository.java
+--- a/../../5.스프링부트/exam02/src/main/java/org/choongang/repositories/BoardDataRepository.java	
++++ b/../../5.스프링부트/exam02/src/main/java/org/choongang/repositories/BoardDataRepository.java	
+@@ -5,19 +5,23 @@
+ import org.springframework.data.domain.Pageable;
+ import org.springframework.data.jpa.repository.JpaRepository;
+ import org.springframework.data.jpa.repository.Query;
++import org.springframework.data.querydsl.QuerydslPredicateExecutor;
+ import org.springframework.data.repository.query.Param;
+ 
+ import java.util.List;
+ import java.util.Stack;
+ 
+-public interface BoardDataRepository extends JpaRepository<BoardData, Long> {
++public interface BoardDataRepository extends JpaRepository<BoardData, Long>, QuerydslPredicateExecutor<BoardData> {
+     List<BoardData> findBySubjectContaining(String keyword);
+     Page<BoardData> findBySubjectContaining(String keyword, Pageable pageable);
+ 
+     List<BoardData> findBySubjectContainingOrderBySeqDesc(String keyword);
+ 
+-    @Query("SELECT b FROM BoardData b WHERE b.subject LIKE '%:key%' ORDER BY b.seq DESC")
+-    List<BoardData> getSubject(@Param("key") String keyword);
++    @Query("SELECT b FROM BoardData b WHERE b.subject LIKE %:key% ORDER BY b.seq DESC")
++    List<BoardData> getSubjects(@Param("key") String keyword);
++
++    @Query("SELECT b FROM BoardData b WHERE b.subject LIKE %:key%")
++    Page<BoardData> getSubjects(@Param("key") String keyword, Pageable pageable);
+ 
+ }
+ 
+Index: ../../5.스프링부트/exam02/src/main/java/org/choongang/entities/Member.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.choongang.entities;\r\n\r\nimport jakarta.persistence.*;\r\nimport lombok.Data;\r\nimport org.choongang.commons.MemberType;\r\nimport org.hibernate.annotations.CreationTimestamp;\r\nimport org.hibernate.annotations.UpdateTimestamp;\r\nimport org.springframework.data.annotation.CreatedDate;\r\nimport org.springframework.data.annotation.LastModifiedDate;\r\nimport org.springframework.data.jpa.domain.support.AuditingEntityListener;\r\n\r\nimport java.time.LocalDateTime;\r\n\r\n@Data\r\n@Entity // CH_MEMBER\r\n@Table(name = \"USERS\", indexes = @Index(name = \"idx_member_createdAt\", columnList = \"createdAt DESC\"))\r\n// @EntityListeners(AuditingEntityListener.class)\r\npublic class Member extends Base {\r\n    @Id @GeneratedValue\r\n    private Long seq;\r\n\r\n    @Column(length = 80, unique = true, nullable = false)\r\n    private String email;\r\n\r\n    @Column(length = 40, nullable = false)\r\n    private String name;\r\n\r\n    @Column(length = 65, name = \"userPw\", nullable = false)\r\n    private String password; // varchar2\r\n    // @Lob\r\n    @Transient\r\n    private String introduction; // CLOB\r\n\r\n    @Enumerated(EnumType.STRING)\r\n    @Column(length = 10)\r\n    private MemberType type;\r\n\r\n    /*\r\n    // @CreationTimestamp // INSERT SQL 실행시\r\n    @CreatedDate\r\n    private LocalDateTime createdAt;\r\n\r\n    // @UpdateTimestamp // UPDATE SQL 실행시\r\n    @LastModifiedDate\r\n    private LocalDateTime modifiedAt;\r\n    */\r\n\r\n    // @Temporal(TemporalType.DATE) // 날짜\r\n    // @Temporal(TemporalType.TIME) // 시간\r\n    // @Temporal(TemporalType.TIMESTAMP) // 날짜 + 시간\r\n    // public Data dt;\r\n}\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n
+===================================================================
+diff --git a/../../5.스프링부트/exam02/src/main/java/org/choongang/entities/Member.java b/../../5.스프링부트/exam02/src/main/java/org/choongang/entities/Member.java
+--- a/../../5.스프링부트/exam02/src/main/java/org/choongang/entities/Member.java	
++++ b/../../5.스프링부트/exam02/src/main/java/org/choongang/entities/Member.java	
+@@ -2,6 +2,7 @@
+ 
+ import jakarta.persistence.*;
+ import lombok.Data;
++import lombok.ToString;
+ import org.choongang.commons.MemberType;
+ import org.hibernate.annotations.CreationTimestamp;
+ import org.hibernate.annotations.UpdateTimestamp;
+@@ -10,11 +11,11 @@
+ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+ 
+ import java.time.LocalDateTime;
++import java.util.ArrayList;
++import java.util.List;
+ 
+ @Data
+ @Entity // CH_MEMBER
+-@Table(name = "USERS", indexes = @Index(name = "idx_member_createdAt", columnList = "createdAt DESC"))
+-// @EntityListeners(AuditingEntityListener.class)
+ public class Member extends Base {
+     @Id @GeneratedValue
+     private Long seq;
+@@ -25,30 +26,20 @@
+     @Column(length = 40, nullable = false)
+     private String name;
+ 
+-    @Column(length = 65, name = "userPw", nullable = false)
++    @Column(length = 65, nullable = false)
+     private String password; // varchar2
+-    // @Lob
+-    @Transient
+-    private String introduction; // CLOB
+ 
+     @Enumerated(EnumType.STRING)
+     @Column(length = 10)
+     private MemberType type;
+ 
+-    /*
+-    // @CreationTimestamp // INSERT SQL 실행시
+-    @CreatedDate
+-    private LocalDateTime createdAt;
++    @ToString.Exclude
++    @OneToMany(mappedBy = "member", fetch=FetchType.EAGER)
++    private List<BoardData> items = new ArrayList<>();
+ 
+-    // @UpdateTimestamp // UPDATE SQL 실행시
+-    @LastModifiedDate
+-    private LocalDateTime modifiedAt;
+-    */
+-
+-    // @Temporal(TemporalType.DATE) // 날짜
+-    // @Temporal(TemporalType.TIME) // 시간
+-    // @Temporal(TemporalType.TIMESTAMP) // 날짜 + 시간
+-    // public Data dt;
++    @OneToOne
++    @JoinColumn(name = "addressNo")
++    private Address address;
+ }
+ 
+ 
+Index: ../../5.스프링부트/exam02/src/main/java/org/choongang/entities/BoardData.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.choongang.entities;\r\n\r\nimport jakarta.persistence.*;\r\nimport lombok.Data;\r\n\r\n@Data // getter, setter\r\n@Entity\r\npublic class BoardData extends Base {\r\n    @Id\r\n    @GeneratedValue\r\n    private Long seq;\r\n\r\n    @Column(length = 100, nullable = false)\r\n    public String subject;\r\n\r\n    @Lob\r\n    @Column(nullable = false)\r\n    public String content;\r\n}\r\n
+===================================================================
+diff --git a/../../5.스프링부트/exam02/src/main/java/org/choongang/entities/BoardData.java b/../../5.스프링부트/exam02/src/main/java/org/choongang/entities/BoardData.java
+--- a/../../5.스프링부트/exam02/src/main/java/org/choongang/entities/BoardData.java	
++++ b/../../5.스프링부트/exam02/src/main/java/org/choongang/entities/BoardData.java	
+@@ -16,4 +16,8 @@
+     @Lob
+     @Column(nullable = false)
+     public String content;
++
++    @ManyToOne
++    @JoinColumn(name = "userNo")
++    private Member member;
+ }
+Index: ../../5.스프링부트/exam02/build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>plugins {\r\n\tid 'java'\r\n\tid 'org.springframework.boot' version '3.2.0'\r\n\tid 'io.spring.dependency-management' version '1.1.4'\r\n}\r\n\r\ngroup = 'org.choongang'\r\nversion = '0.0.1-SNAPSHOT'\r\n\r\njava {\r\n\tsourceCompatibility = '17'\r\n}\r\n\r\nconfigurations {\r\n\tcompileOnly {\r\n\t\textendsFrom annotationProcessor\r\n\t}\r\n}\r\n\r\nrepositories {\r\n\tmavenCentral()\r\n}\r\n\r\ndependencies {\r\n\timplementation 'org.springframework.boot:spring-boot-starter-data-jpa'\r\n\timplementation 'org.springframework.boot:spring-boot-starter-thymeleaf'\r\n\timplementation 'org.springframework.boot:spring-boot-starter-validation'\r\n\timplementation 'org.springframework.boot:spring-boot-starter-web'\r\n\timplementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.3.0'\r\n\r\n\truntimeOnly 'com.oracle.database.jdbc:ojdbc11:23.3.0.23.09'\r\n\timplementation 'com.oracle.database.nls:orai18n:23.3.0.23.09'\r\n\r\n\tannotationProcessor 'jakarta.annotation:jakarta.annotation-api'\r\n\tannotationProcessor 'jakarta.persistence:jakarta.persistence-api'\r\n\r\n\tcompileOnly 'org.projectlombok:lombok'\r\n\tdevelopmentOnly 'org.springframework.boot:spring-boot-devtools'\r\n\ttestRuntimeOnly 'com.h2database:h2'\r\n\tannotationProcessor 'org.projectlombok:lombok'\r\n\ttestImplementation 'org.springframework.boot:spring-boot-starter-test'\r\n}\r\n\r\ntasks.named('test') {\r\n\tuseJUnitPlatform()\r\n}\r\n
+===================================================================
+diff --git a/../../5.스프링부트/exam02/build.gradle b/../../5.스프링부트/exam02/build.gradle
+--- a/../../5.스프링부트/exam02/build.gradle	
++++ b/../../5.스프링부트/exam02/build.gradle	
+@@ -28,6 +28,9 @@
+ 	implementation 'org.springframework.boot:spring-boot-starter-web'
+ 	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.3.0'
+ 
++	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
++	annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
++
+ 	runtimeOnly 'com.oracle.database.jdbc:ojdbc11:23.3.0.23.09'
+ 	implementation 'com.oracle.database.nls:orai18n:23.3.0.23.09'
+ 
+@@ -44,3 +47,17 @@
+ tasks.named('test') {
+ 	useJUnitPlatform()
+ }
++
++def querydslDir = "$buildDir/generated/querydsl"
++
++sourceSets {
++	main.java.srcDirs += [ querydslDir ]
++}
++
++tasks.withType(JavaCompile) {
++	options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
++}
++
++clean.doLast {
++	file(querydslDir).deleteDir()
++}

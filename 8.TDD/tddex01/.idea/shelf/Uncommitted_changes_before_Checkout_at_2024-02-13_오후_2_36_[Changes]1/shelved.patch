@@ -1,0 +1,791 @@
+Index: ../../5.스프링부트/exam02/src/test/java/org/choongang/jpaex/Ex06Test.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../../5.스프링부트/exam02/src/test/java/org/choongang/jpaex/Ex06Test.java b/../../5.스프링부트/exam02/src/test/java/org/choongang/jpaex/Ex06Test.java
+new file mode 100644
+--- /dev/null	
++++ b/../../5.스프링부트/exam02/src/test/java/org/choongang/jpaex/Ex06Test.java	
+@@ -0,0 +1,94 @@
++package org.choongang.jpaex;
++
++import jakarta.persistence.EntityManager;
++import jakarta.persistence.PersistenceContext;
++import org.choongang.entities.Base;
++import org.choongang.entities.BoardData;
++import org.choongang.entities.Member;
++import org.choongang.repositories.BoardDataRepository;
++import org.choongang.repositories.MemberRepository;
++import org.junit.jupiter.api.BeforeEach;
++import org.junit.jupiter.api.Test;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.boot.test.context.SpringBootTest;
++import org.springframework.test.context.TestPropertySource;
++import org.springframework.transaction.annotation.Transactional;
++
++import java.util.ArrayList;
++import java.util.List;
++
++@SpringBootTest
++@Transactional
++@TestPropertySource(properties = "spring.profiles.active=test")
++public class Ex06Test {
++    @Autowired
++    private BoardDataRepository boardDataRepository;
++
++    @Autowired
++    private MemberRepository memberRepository;
++
++    @PersistenceContext
++    private EntityManager em;
++
++    @BeforeEach
++    void init() {
++        Member member = new Member();
++        member.setEmail("user01.test.org");
++        member.setName("사용자01");
++        member.setPassword("12345678");
++
++        memberRepository.saveAndFlush(member);
++
++        List<BoardData> items = new ArrayList<>();
++        for (int i = 1; i <= 10; i++) {
++            BoardData item = new BoardData();
++            item.setSubject("제목" + i);
++            item.setContent("내용" + i);
++            item.setMember(member);
++            items.add(item);
++        }
++
++        boardDataRepository.saveAllAndFlush(items);
++        em.clear(); // 엔티티 비우기
++    }
++
++    @Test
++    void test1() {
++        BoardData data = boardDataRepository.findById(1L).orElse(null);
++        Member member = data.getMember();
++        System.out.println(member);
++    }
++
++    @Test
++    void test2() {
++        Member member = memberRepository.findByEmail("user01@test.org");
++        List<BoardData> items = member.getItems();
++
++        items.forEach(System.out::println); // BoardData -> toString() 호출
++    }
++}
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
+Index: .idea/encodings.xml
+===================================================================
+diff --git a/.idea/encodings.xml b/.idea/encodings.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/encodings.xml	
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="Encoding" defaultCharsetForPropertiesFiles="UTF-8">
++    <file url="file://$PROJECT_DIR$/src" charset="UTF-8" />
++    <file url="PROJECT" charset="UTF-8" />
++  </component>
++</project>
+\ No newline at end of file
+Index: ../../5.스프링부트/exam02/src/main/java/org/choongang/entities/Member2.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../../5.스프링부트/exam02/src/main/java/org/choongang/entities/Member2.java b/../../5.스프링부트/exam02/src/main/java/org/choongang/entities/Member2.java
+new file mode 100644
+--- /dev/null	
++++ b/../../5.스프링부트/exam02/src/main/java/org/choongang/entities/Member2.java	
+@@ -0,0 +1,71 @@
++package org.choongang.entities;
++
++import jakarta.persistence.Column;
++import jakarta.persistence.Entity;
++import jakarta.persistence.GeneratedValue;
++import jakarta.persistence.Id;
++import lombok.Data;
++
++@Data
++@Entity // CH_MEMBER
++// @Table(name = "USERS", indexes = @Index(name = "idx_member_createdAt", columnList = "createdAt DESC"))
++// @EntityListeners(AuditingEntityListener.class)
++public class Member2 extends Base {
++    @Id @GeneratedValue
++    private Long seq;
++
++    @Column(length = 80, unique = true, nullable = false)
++    private String email;
++
++    @Column(length = 40, nullable = false)
++    private String name;
++
++    // @Column(length = 65, name = "userPw", nullable = false)
++    @Column(length = 65, nullable = false)
++    private String password; // varchar2
++    
++    /*
++    // @Lob
++    @Transient
++    private String introduction; // CLOB
++
++
++    @Enumerated(EnumType.STRING)
++    @Column(length = 10)
++    private MemberType type;
++
++    /*
++    // @CreationTimestamp // INSERT SQL 실행시
++    @CreatedDate
++    private LocalDateTime createdAt;
++
++    // @UpdateTimestamp // UPDATE SQL 실행시
++    @LastModifiedDate
++    private LocalDateTime modifiedAt;
++    */
++
++    // @Temporal(TemporalType.DATE) // 날짜
++    // @Temporal(TemporalType.TIME) // 시간
++    // @Temporal(TemporalType.TIMESTAMP) // 날짜 + 시간
++    // public Data dt;
++}
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
+Index: ../../5.스프링부트/exam02/src/main/generated/org/choongang/entities/QMember.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../../5.스프링부트/exam02/src/main/generated/org/choongang/entities/QMember.java b/../../5.스프링부트/exam02/src/main/generated/org/choongang/entities/QMember.java
+new file mode 100644
+--- /dev/null	
++++ b/../../5.스프링부트/exam02/src/main/generated/org/choongang/entities/QMember.java	
+@@ -0,0 +1,69 @@
++package org.choongang.entities;
++
++import static com.querydsl.core.types.PathMetadataFactory.*;
++
++import com.querydsl.core.types.dsl.*;
++
++import com.querydsl.core.types.PathMetadata;
++import javax.annotation.processing.Generated;
++import com.querydsl.core.types.Path;
++import com.querydsl.core.types.dsl.PathInits;
++
++
++/**
++ * QMember is a Querydsl query type for Member
++ */
++@Generated("com.querydsl.codegen.DefaultEntitySerializer")
++public class QMember extends EntityPathBase<Member> {
++
++    private static final long serialVersionUID = 542844075L;
++
++    private static final PathInits INITS = PathInits.DIRECT2;
++
++    public static final QMember member = new QMember("member1");
++
++    public final QBase _super = new QBase(this);
++
++    public final QAddress address;
++
++    //inherited
++    public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
++
++    public final StringPath email = createString("email");
++
++    public final ListPath<BoardData, QBoardData> items = this.<BoardData, QBoardData>createList("items", BoardData.class, QBoardData.class, PathInits.DIRECT2);
++
++    //inherited
++    public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
++
++    public final StringPath name = createString("name");
++
++    public final StringPath password = createString("password");
++
++    public final NumberPath<Long> seq = createNumber("seq", Long.class);
++
++    public final EnumPath<org.choongang.commons.MemberType> type = createEnum("type", org.choongang.commons.MemberType.class);
++
++    public QMember(String variable) {
++        this(Member.class, forVariable(variable), INITS);
++    }
++
++    public QMember(Path<? extends Member> path) {
++        this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
++    }
++
++    public QMember(PathMetadata metadata) {
++        this(metadata, PathInits.getFor(metadata, INITS));
++    }
++
++    public QMember(PathMetadata metadata, PathInits inits) {
++        this(Member.class, metadata, inits);
++    }
++
++    public QMember(Class<? extends Member> type, PathMetadata metadata, PathInits inits) {
++        super(type, metadata, inits);
++        this.address = inits.isInitialized("address") ? new QAddress(forProperty("address")) : null;
++    }
++
++}
++
+Index: ../../5.스프링부트/exam02/src/main/java/org/choongang/entities/Address.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../../5.스프링부트/exam02/src/main/java/org/choongang/entities/Address.java b/../../5.스프링부트/exam02/src/main/java/org/choongang/entities/Address.java
+new file mode 100644
+--- /dev/null	
++++ b/../../5.스프링부트/exam02/src/main/java/org/choongang/entities/Address.java	
+@@ -0,0 +1,42 @@
++package org.choongang.entities;
++
++import jakarta.persistence.*;
++import lombok.Data;
++
++@Data
++@Entity
++public class Address {
++    @Id @GeneratedValue
++    private Long seq;
++
++    @Column(length = 10, nullable = false)
++    private String zipcode;
++
++    @Column(length = 80, nullable = false)
++    private String addr1;
++
++    @Column(length = 80)
++    private String addr2;
++
++
++}
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
+Index: ../../5.스프링부트/exam02/src/test/java/org/choongang/jpaex/Ex05Test.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../../5.스프링부트/exam02/src/test/java/org/choongang/jpaex/Ex05Test.java b/../../5.스프링부트/exam02/src/test/java/org/choongang/jpaex/Ex05Test.java
+new file mode 100644
+--- /dev/null	
++++ b/../../5.스프링부트/exam02/src/test/java/org/choongang/jpaex/Ex05Test.java	
+@@ -0,0 +1,118 @@
++package org.choongang.jpaex;
++
++import com.querydsl.core.BooleanBuilder;
++import org.choongang.entities.BoardData;
++import org.choongang.entities.QBoardData;
++import org.choongang.repositories.BoardDataRepository;
++import org.junit.jupiter.api.BeforeEach;
++import org.junit.jupiter.api.Test;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.boot.test.context.SpringBootTest;
++import org.springframework.data.domain.Page;
++import org.springframework.data.domain.PageRequest;
++import org.springframework.data.domain.Pageable;
++import org.springframework.data.domain.Sort;
++import org.springframework.test.context.TestPropertySource;
++
++import java.util.ArrayList;
++import java.util.List;
++
++import static org.springframework.data.domain.Sort.Order.desc;
++
++@SpringBootTest
++@TestPropertySource(properties = "spring.profiles.active=test")
++public class Ex05Test {
++
++    @Autowired
++    private BoardDataRepository repository;
++
++    @BeforeEach
++    void init() {
++        List<BoardData> items = new ArrayList<>();
++        for (int i = 1; i <= 10; i++) {
++            BoardData item = new BoardData();
++
++            item.setSubject("제목" + i);
++            item.setContent("내용" + i);
++            items.add(item);
++        }
++
++        repository.saveAllAndFlush(items);
++
++    }
++
++    @Test
++    void test1() {
++        List<BoardData> items = repository.getSubjects("목");
++        items.forEach(System.out::println);
++    }
++
++    @Test
++    void test2() {
++        QBoardData boardData = QBoardData.boardData;
++
++        List<BoardData> items = (List<BoardData>) repository.findAll(boardData.subject.contains("목"));
++
++        items.forEach(System.out::println);
++    }
++
++    @Test
++    void test3() {
++        QBoardData boardData = QBoardData.boardData;
++        List<BoardData> items = (List<BoardData>) repository.findAll(boardData.subject.contains("목"), Sort.by(desc("createdAt")));
++
++        items.forEach(System.out::println);
++    }
++
++    @Test
++    void test4() {
++        QBoardData boardData = QBoardData.boardData;
++
++        Pageable pageable = PageRequest.of(1, 3, Sort.by(desc("createdAt")));
++        Page<BoardData> data = repository.findAll(boardData.subject.contains("목"), pageable);
++    }
++
++    @Test
++    void test5() {
++        QBoardData boardData = QBoardData.boardData;
++        BooleanBuilder andBuilder = new BooleanBuilder();
++        BooleanBuilder orBuilder = new BooleanBuilder();
++
++        andBuilder.and(boardData.seq.in(1L, 3L, 5L));
++
++        orBuilder.or(boardData.subject.contains("목"))
++                .or(boardData.content.contains("용"));
++
++        andBuilder.and(orBuilder);
++
++        // subject LIKE '%목%' OR content LIKE '%목%' AND seq IN (1, 3, 5)
++        // (subject LIKE '%목%' OR content LIKE '%목%') AND seq IN (1, 3, 5)
++        List<BoardData> items = (List<BoardData>) repository.findAll(orBuilder);
++        items.forEach(System.out::println);
++    }
++
++}
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
+Index: ../../5.스프링부트/exam02/src/main/java/org/choongang/repositories/AddressRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../../5.스프링부트/exam02/src/main/java/org/choongang/repositories/AddressRepository.java b/../../5.스프링부트/exam02/src/main/java/org/choongang/repositories/AddressRepository.java
+new file mode 100644
+--- /dev/null	
++++ b/../../5.스프링부트/exam02/src/main/java/org/choongang/repositories/AddressRepository.java	
+@@ -0,0 +1,7 @@
++package org.choongang.repositories;
++
++import org.choongang.entities.Address;
++import org.springframework.data.jpa.repository.JpaRepository;
++
++public interface AddressRepository extends JpaRepository<Address, Long> {
++}
+Index: ../../5.스프링부트/exam02/src/main/generated/org/choongang/entities/QBase.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../../5.스프링부트/exam02/src/main/generated/org/choongang/entities/QBase.java b/../../5.스프링부트/exam02/src/main/generated/org/choongang/entities/QBase.java
+new file mode 100644
+--- /dev/null	
++++ b/../../5.스프링부트/exam02/src/main/generated/org/choongang/entities/QBase.java	
+@@ -0,0 +1,39 @@
++package org.choongang.entities;
++
++import static com.querydsl.core.types.PathMetadataFactory.*;
++
++import com.querydsl.core.types.dsl.*;
++
++import com.querydsl.core.types.PathMetadata;
++import javax.annotation.processing.Generated;
++import com.querydsl.core.types.Path;
++
++
++/**
++ * QBase is a Querydsl query type for Base
++ */
++@Generated("com.querydsl.codegen.DefaultSupertypeSerializer")
++public class QBase extends EntityPathBase<Base> {
++
++    private static final long serialVersionUID = -1818758878L;
++
++    public static final QBase base = new QBase("base");
++
++    public final DateTimePath<java.time.LocalDateTime> createdAt = createDateTime("createdAt", java.time.LocalDateTime.class);
++
++    public final DateTimePath<java.time.LocalDateTime> modifiedAt = createDateTime("modifiedAt", java.time.LocalDateTime.class);
++
++    public QBase(String variable) {
++        super(Base.class, forVariable(variable));
++    }
++
++    public QBase(Path<? extends Base> path) {
++        super(path.getType(), path.getMetadata());
++    }
++
++    public QBase(PathMetadata metadata) {
++        super(Base.class, metadata);
++    }
++
++}
++
+Index: ../../5.스프링부트/exam02/src/main/generated/org/choongang/entities/QBoardData.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../../5.스프링부트/exam02/src/main/generated/org/choongang/entities/QBoardData.java b/../../5.스프링부트/exam02/src/main/generated/org/choongang/entities/QBoardData.java
+new file mode 100644
+--- /dev/null	
++++ b/../../5.스프링부트/exam02/src/main/generated/org/choongang/entities/QBoardData.java	
+@@ -0,0 +1,63 @@
++package org.choongang.entities;
++
++import static com.querydsl.core.types.PathMetadataFactory.*;
++
++import com.querydsl.core.types.dsl.*;
++
++import com.querydsl.core.types.PathMetadata;
++import javax.annotation.processing.Generated;
++import com.querydsl.core.types.Path;
++import com.querydsl.core.types.dsl.PathInits;
++
++
++/**
++ * QBoardData is a Querydsl query type for BoardData
++ */
++@Generated("com.querydsl.codegen.DefaultEntitySerializer")
++public class QBoardData extends EntityPathBase<BoardData> {
++
++    private static final long serialVersionUID = -1632874497L;
++
++    private static final PathInits INITS = PathInits.DIRECT2;
++
++    public static final QBoardData boardData = new QBoardData("boardData");
++
++    public final QBase _super = new QBase(this);
++
++    public final StringPath content = createString("content");
++
++    //inherited
++    public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
++
++    public final QMember member;
++
++    //inherited
++    public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
++
++    public final NumberPath<Long> seq = createNumber("seq", Long.class);
++
++    public final StringPath subject = createString("subject");
++
++    public QBoardData(String variable) {
++        this(BoardData.class, forVariable(variable), INITS);
++    }
++
++    public QBoardData(Path<? extends BoardData> path) {
++        this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
++    }
++
++    public QBoardData(PathMetadata metadata) {
++        this(metadata, PathInits.getFor(metadata, INITS));
++    }
++
++    public QBoardData(PathMetadata metadata, PathInits inits) {
++        this(BoardData.class, metadata, inits);
++    }
++
++    public QBoardData(Class<? extends BoardData> type, PathMetadata metadata, PathInits inits) {
++        super(type, metadata, inits);
++        this.member = inits.isInitialized("member") ? new QMember(forProperty("member")) : null;
++    }
++
++}
++
+Index: ../../5.스프링부트/exam02/src/main/generated/org/choongang/entities/QBoardView.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../../5.스프링부트/exam02/src/main/generated/org/choongang/entities/QBoardView.java b/../../5.스프링부트/exam02/src/main/generated/org/choongang/entities/QBoardView.java
+new file mode 100644
+--- /dev/null	
++++ b/../../5.스프링부트/exam02/src/main/generated/org/choongang/entities/QBoardView.java	
+@@ -0,0 +1,39 @@
++package org.choongang.entities;
++
++import static com.querydsl.core.types.PathMetadataFactory.*;
++
++import com.querydsl.core.types.dsl.*;
++
++import com.querydsl.core.types.PathMetadata;
++import javax.annotation.processing.Generated;
++import com.querydsl.core.types.Path;
++
++
++/**
++ * QBoardView is a Querydsl query type for BoardView
++ */
++@Generated("com.querydsl.codegen.DefaultEntitySerializer")
++public class QBoardView extends EntityPathBase<BoardView> {
++
++    private static final long serialVersionUID = -1632331014L;
++
++    public static final QBoardView boardView = new QBoardView("boardView");
++
++    public final NumberPath<Long> seq = createNumber("seq", Long.class);
++
++    public final NumberPath<Integer> uid = createNumber("uid", Integer.class);
++
++    public QBoardView(String variable) {
++        super(BoardView.class, forVariable(variable));
++    }
++
++    public QBoardView(Path<? extends BoardView> path) {
++        super(path.getType(), path.getMetadata());
++    }
++
++    public QBoardView(PathMetadata metadata) {
++        super(BoardView.class, metadata);
++    }
++
++}
++
+Index: .idea/misc.xml
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/misc.xml	
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ExternalStorageConfigurationManager" enabled="true" />
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="17" project-jdk-type="JavaSDK">
++    <output url="file://$PROJECT_DIR$/out" />
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/vcs.xml
+===================================================================
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/vcs.xml	
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="$PROJECT_DIR$/../.." vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/gradle.xml
+===================================================================
+diff --git a/.idea/gradle.xml b/.idea/gradle.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/gradle.xml	
+@@ -0,0 +1,19 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="GradleSettings">
++    <option name="linkedExternalProjectsSettings">
++      <GradleProjectSettings>
++        <option name="delegatedBuild" value="false" />
++        <option name="testRunner" value="PLATFORM" />
++        <option name="externalProjectPath" value="$PROJECT_DIR$" />
++        <option name="gradleHome" value="$PROJECT_DIR$/../../gradle-8.5" />
++        <option name="gradleJvm" value="#JAVA_HOME" />
++        <option name="modules">
++          <set>
++            <option value="$PROJECT_DIR$" />
++          </set>
++        </option>
++      </GradleProjectSettings>
++    </option>
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/.gitignore
+===================================================================
+diff --git a/.idea/.gitignore b/.idea/.gitignore
+new file mode 100644
+--- /dev/null	
++++ b/.idea/.gitignore	
+@@ -0,0 +1,3 @@
++# Default ignored files
++/shelf/
++/workspace.xml
+Index: ../../5.스프링부트/exam02/src/test/java/org/choongang/jpaex/Ex07Test.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../../5.스프링부트/exam02/src/test/java/org/choongang/jpaex/Ex07Test.java b/../../5.스프링부트/exam02/src/test/java/org/choongang/jpaex/Ex07Test.java
+new file mode 100644
+--- /dev/null	
++++ b/../../5.스프링부트/exam02/src/test/java/org/choongang/jpaex/Ex07Test.java	
+@@ -0,0 +1,68 @@
++package org.choongang.jpaex;
++
++import org.choongang.entities.Address;
++import org.choongang.entities.Member;
++import org.choongang.repositories.AddressRepository;
++import org.choongang.repositories.MemberRepository;
++import org.junit.jupiter.api.BeforeEach;
++import org.junit.jupiter.api.Test;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.boot.test.context.SpringBootTest;
++import org.springframework.test.context.TestPropertySource;
++
++@SpringBootTest
++@TestPropertySource(properties = "spring.profiles.active=test")
++public class Ex07Test {
++    @Autowired
++    private MemberRepository memberRepository;
++
++    @Autowired
++    private AddressRepository addressRepository;
++
++    @BeforeEach
++    void init() {
++        Address address = new Address();
++        address.setZipcode("12345");
++        address.setAddr1("주소1");
++        address.setAddr2("주소2");
++
++        addressRepository.saveAndFlush(address);
++
++        Member member = new Member();
++        member.setEmail("user@test.org");
++        member.setPassword("12345678");
++        member.setName("사용자01");
++        member.setAddress(address);
++
++        memberRepository.saveAndFlush(member);
++    }
++
++    @Test
++    void test1() {
++        Member member = memberRepository.findByEmail("user01@test.org");
++        Address address = member.getAddress();
++
++        System.out.println(address);
++    }
++
++}
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
